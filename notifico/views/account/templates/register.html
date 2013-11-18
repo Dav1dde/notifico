@@ -1,23 +1,27 @@
-{% extends "layouts/main.html" %}
+{% extends "base_with_nav.html" %}
 {% import "ui/forms.html" as forms %}
 
-{% block content_page %}
-  <h2>Register</h2>
-  <div class="section-content">
-    <form class="form form-horizontal" method='POST' action="{{ request.url }}">
-      {{ form.hidden_tag() }}
-      {{ forms.render_field(form.username) }}
-      {{ forms.render_field(form.email) }}
-      {{ forms.render_field(form.password) }}
-      {{ forms.render_field(form.confirm) }}
-      <div class="form-actions">
-        <button type="submit" class="btn btn-success">
-          <i class="icon-plus"></i> Create Account
-        </button>
-        <a href="{{ url_for('public.landing') }}" class="btn btn-danger">
-          <i class="icon-remove"></i> Cancel
-        </a>
-      </div>
-    </form>
-  </div>
+{% block page_content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Sign Up</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <form role="form" class="form" method='POST' action="{{ request.url }}">
+                {{ form.hidden_tag() }}
+                {{ forms.render_field(form.username) }}
+                {{ forms.render_field(form.email) }}
+                {{ forms.render_field(form.password) }}
+                {{ forms.render_field(form.confirm) }}
+                <button type="submit" class="btn btn-success">
+                  <i class="fa fa-plus"></i> Create Account
+                </button>
+                <a href="{{ url_for('public.landing') }}" class="btn btn-danger">
+                  <i class="fa fa-times"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

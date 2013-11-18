@@ -9,11 +9,11 @@
     {{ field(class="form-control", **kwargs)|safe }}
     {% if field.errors %}
     {% for error in field.errors %}
-    <p class="form-block">{{ error }}</span>
+    <p class="form-block text-danger">{{ error }}</span>
     {% endfor %}
     {% endif %}
     {% if field.description %}
-    <p class="form-block" style="color: black;">
+    <p class="form-block text-muted">
         {{ field.description|safe }}
     </p>
     {% endif %}
