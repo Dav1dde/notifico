@@ -54,6 +54,18 @@
 						<!-- ENDOF Logged-in user nav -->
 						{% endif %}
 					</ul>
+					<ul class="nav navbar-nav pull-right">
+						{% if g.user %}
+						<!-- START Logged-in user right nav -->
+						
+						<!-- ENDOF Logged-in user right nav -->
+						{% else %}
+						<!-- START Logged-out user right nav -->
+						{{ _nav('account.login', 'Login') }}
+						{{ _nav('account.register', 'Sign Up') }}
+						<!-- ENDOF Logged-out user right nav -->
+						{% endif %}
+					</ul>
 				</div><!--/.nav-collapse -->
 			</div>
 		</div>
