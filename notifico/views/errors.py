@@ -2,19 +2,17 @@
 # -*- coding: utf-8 -*-
 """errors.py
 """
-__all__ = (
-    'error_500'
-)
-from flask import render_template
+__all__ = ('error_generic',)
+from flask import render_template, request, Markup
 
 
-def error_500(error):
+def error_generic(error):
     """
-    Called when an internel server error (500) occured when
-    responding to a request.
+    Called when a generic error occured when responding to a request.
     """
     return render_template(
-        'errors/500.html',
-        error_code=500,
-        e=error
-    ), 500
+        'errors/generic.html',
+        error_code=error.code,
+        e=error,
+        description=Markup(error.get_description(request.environ))
+    ), error.code

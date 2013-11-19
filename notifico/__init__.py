@@ -84,7 +84,8 @@ def create_instance():
     # Register our custom error handlers.
     from notifico.views import errors
 
-    app.error_handler_spec[None][500] = errors.error_500
+    app.error_handler_spec[None][500] = errors.error_generic
+    app.error_handler_spec[None][404] = errors.error_generic
 
     # cia.vc XML-RPC kludge.
     from notifico.services.hooks.cia import handler

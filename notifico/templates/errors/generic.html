@@ -1,0 +1,18 @@
+{% extends "base_with_nav.html" %}
+
+{% block page_content %}
+<div class="container">
+  <div class="page-header">
+    <h1>{{ e.name }} - {{ e.code }}</h1>
+  </div>
+  <div class="section-content">
+    <p>
+        {{ description }}
+    </p>
+
+    <a href="{{ url_for('public.landing') }}">
+        &larr; Home
+    </a>
+  </div>
+</div>
+{% endblock %}
