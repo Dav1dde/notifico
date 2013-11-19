@@ -1,5 +1,13 @@
 .alert {
 	border: none;
-	border-radius: 0;
 	margin-bottom: 0;
+}
+
+.btn,
+.alert,
+.panel,
+.panel-heading {
+	border-radius: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
