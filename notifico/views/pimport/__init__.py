@@ -15,7 +15,8 @@ from flask import (
 from flask.ext import wtf
 from github import Github, GithubException
 
-from notifico import db, user_required
+from notifico import db
+from notifico.views import user_required
 from notifico.models import AuthToken, Project, Hook, Channel
 
 pimport = Blueprint('pimport', __name__, template_folder='templates')

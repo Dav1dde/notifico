@@ -14,9 +14,10 @@ from flask import (
     request,
     flash
 )
-from notifico import db, user_required
+from notifico import db
 from notifico.models import User, AuthToken
 from notifico.services import reset, background
+from notifico.views import user_required, no_user_required
 from notifico.views.account.forms import (
     UserLoginForm,
     UserRegisterForm,
@@ -43,6 +44,7 @@ def set_user():
 
 
 @account.route('/login', methods=['GET', 'POST'])
+@no_user_required
 def login():
     """
     Standard login form.
@@ -74,6 +76,7 @@ def logout():
 
 
 @account.route('/forgot', methods=['GET', 'POST'])
+@no_user_required
 def forgot_password():
     """
     If NOTIFICO_PASSWORD_RESET is enabled and Flask-Mail is configured,
@@ -190,14 +193,12 @@ def reset_pick_password():
 
 
 @account.route('/register', methods=['GET', 'POST'])
+@no_user_required
 def register():
     """
     If new user registrations are enabled, provides a registration form
     and validation.
     """
-    if g.user:
-        return redirect(url_for('public.landing'))
-
     # Make sure this instance is allowing new users.
     if not current_app.config.get('NOTIFICO_NEW_USERS', True):
         return redirect(url_for('public.landing'))

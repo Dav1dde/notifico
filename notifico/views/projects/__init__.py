@@ -17,7 +17,8 @@ from flask import (
 )
 from flask.ext import wtf
 
-from notifico import db, user_required
+from notifico import db
+from notifico.views import user_required
 from notifico.models import User, Project, Hook, Channel
 from notifico.services.hooks import HookService
 
@@ -102,17 +103,31 @@ def project_action(f):
     return _wrapped
 
 
+@projects.url_defaults
+def _fill_in_defaults(endpoint, values):
+    if 'u' not in values:
+        if g.user:
+            values['u'] = g.user.username
+
+
+@projects.url_value_preprocessor
+def _resolve_values(endpoint, values):
+    # Resolve a User reference.
+    if 'u' in values:
+        u = User.by_username(values.pop('u'))
+        if not u:
+            # No user with that name actually exists.
+            return abort(404)
+
+        values['u'] = u
+
+
 @projects.route('/<u>/')
 def dashboard(u):
     """
     Display an overview of all the user's projects with summary
     statistics.
     """
-    u = User.by_username(u)
-    if not u:
-        # No such user exists.
-        return abort(404)
-
     is_owner = (g.user and g.user.id == u.id)
 
     # Get all projects by decending creation date.

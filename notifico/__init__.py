@@ -1,4 +1,9 @@
 # -*- coding: utf8 -*-
+__all__ = (
+    'user_required',
+    'no_user_required',
+    'create_instance'
+)
 from functools import wraps
 
 from redis import Redis
@@ -31,6 +36,15 @@ def user_required(f):
     def _wrapped(*args, **kwargs):
         if g.user is None:
             return redirect(url_for('account.login'))
+        return f(*args, **kwargs)
+    return _wrapped
+
+
+def no_user_required(f):
+    @wraps(f)
+    def _wrapped(*args, **kwargs):
+        if g.user:
+            return redirect(url_for('public.landing'))
         return f(*args, **kwargs)
     return _wrapped
 
