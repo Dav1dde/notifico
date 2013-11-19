@@ -41,7 +41,7 @@
                     <tbody>
                         {% for project in new_projects.items %}
                         <tr>
-                            <td>
+                            <td nowrap>
                                 {{ project.created|pretty_date }}
                             </td>
                             <td style="width: 100%;">
@@ -54,8 +54,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <div class="panel-footer">
-                    <a class="btn btn-info" href="{{ url_for('.projects') }}">
+                <div class="panel-footer clearfix">
+                    <a class="btn btn-info pull-right" href="{{ url_for('.projects') }}">
                         <i class="fa fa-search"></i> See All {{ new_projects.total }} Projects
                     </a>
                 </div>
@@ -86,8 +86,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <div class="panel-footer">
-                    <a class="btn btn-info" href="{{ url_for('.networks') }}">
+                <div class="panel-footer clearfix">
+                    <a class="btn btn-info pull-right" href="{{ url_for('.networks') }}">
                         <i class="fa fa-search"></i> See All {{ total_networks }} Networks
                     </a>
                 </div>
