@@ -1,19 +1,9 @@
 # -*- coding: utf8 -*-
-__all__ = (
-    'user_required',
-    'no_user_required',
-    'create_instance'
-)
-from functools import wraps
+__all__ = ('create_instance',)
 
 from redis import Redis
 from celery import Celery
-from flask import (
-    Flask,
-    g,
-    redirect,
-    url_for
-)
+from flask import Flask
 from flask.ext.cache import Cache
 from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -26,42 +16,6 @@ sentry = Sentry()
 cache = Cache()
 mail = Mail()
 celery = Celery()
-
-
-def user_required(f):
-    """
-    A decorator for views which required a logged in user.
-    """
-    @wraps(f)
-    def _wrapped(*args, **kwargs):
-        if g.user is None:
-            return redirect(url_for('account.login'))
-        return f(*args, **kwargs)
-    return _wrapped
-
-
-def no_user_required(f):
-    @wraps(f)
-    def _wrapped(*args, **kwargs):
-        if g.user:
-            return redirect(url_for('public.landing'))
-        return f(*args, **kwargs)
-    return _wrapped
-
-
-def group_required(name):
-    """
-    A decorator for views which required a user to be member
-    to a particular group.
-    """
-    def _wrap(f):
-        @wraps(f)
-        def _wrapped(*args, **kwargs):
-            if g.user is None or not g.user.in_group(name):
-                return redirect(url_for('account.login'))
-            return f(*args, **kwargs)
-        return _wrapped
-    return _wrap
 
 
 def create_instance():
