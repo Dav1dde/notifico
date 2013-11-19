@@ -71,6 +71,23 @@
 		</div>
 		<!-- ENDOF Site Nav -->
 
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+			<!-- START Messages -->
+			{% for category, message in messages %}
+				{% if category == 'message' %}
+					{% set category = 'info' %}
+				{% endif %}
+				<div class="alert alert-{{ category }}">
+					<div class="container">
+						{{ message }}
+					</div>
+				</div>
+			{% endfor %}
+			<!-- ENDOF Messages -->
+			{% endif %}
+		{% endwith %}
+
 		<!-- START block page_content -->
 		{% block page_content %}{% endblock %}
 		<!-- ENDOF block page_content -->
