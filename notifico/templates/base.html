@@ -39,15 +39,16 @@
     {% endif %}
   </head>
   <body>
-    <!-- START block content -->
     {% block content %}
-    {% endblock %}
+    <!-- START block content -->
     <!-- ENDOF block content -->
+    {% endblock %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="/js/jquery.min.js"><\/script>')</script>
     <script src="/js/bootstrap.js"></script>
+    {% block footer_script %}
     <!-- START block footer_script -->
-    {% block footer_script %}{% endblock %}
     <!-- ENDOF block footer_script -->
+    {% endblock %}
   </body>
 </html>
