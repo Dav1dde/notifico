@@ -77,32 +77,6 @@ class ChannelDetailsForm(wtf.Form):
     ))
 
 
-def project_action(f):
-    """
-    A decorator for views which act on a project. The function
-    should take two kwargs, `u` (the username) and `p` (the project name),
-    which will be resolved and replaced, or a 404 will be raised if either
-    could not be found.
-    """
-    @wraps(f)
-    def _wrapped(*args, **kwargs):
-        u = User.by_username(kwargs.pop('u'))
-        if not u:
-            # No such user exists.
-            return abort(404)
-
-        p = Project.by_name_and_owner(kwargs.pop('p'), u)
-        if not p:
-            # Project doesn't exist (404 Not Found)
-            return abort(404)
-
-        kwargs['p'] = p
-        kwargs['u'] = u
-
-        return f(*args, **kwargs)
-    return _wrapped
-
-
 @projects.url_defaults
 def _fill_in_defaults(endpoint, values):
     if 'u' not in values:
@@ -120,6 +94,15 @@ def _resolve_values(endpoint, values):
             return abort(404)
 
         values['u'] = u
+
+    # Resolve a Project reference.
+    if 'p' in values:
+        p = Project.by_name_and_owner(values.pop('p'), u)
+        if not p:
+            # That project doesn't exist.
+            return abort(404)
+
+        values['p'] = p
 
 
 @projects.route('/<u>/')
@@ -194,7 +177,6 @@ def new():
 
 @projects.route('/<u>/<p>/edit', methods=['GET', 'POST'])
 @user_required
-@project_action
 def edit_project(u, p):
     """
     Edit an existing project.
@@ -227,7 +209,6 @@ def edit_project(u, p):
 
 @projects.route('/<u>/<p>/delete', methods=['GET', 'POST'])
 @user_required
-@project_action
 def delete_project(u, p):
     """
     Delete an existing project.
@@ -246,7 +227,6 @@ def delete_project(u, p):
 
 
 @projects.route('/<u>/<p>')
-@project_action
 def details(u, p):
     """
     Show the details for an existing project.
@@ -277,7 +257,6 @@ def details(u, p):
     'GET', 'POST'])
 @projects.route('/<u>/<p>/hook/new/<int:sid>', methods=['GET', 'POST'])
 @user_required
-@project_action
 def new_hook(u, p, sid):
     if p.owner.id != g.user.id:
         # Project isn't public and the viewer isn't the project owner.
@@ -312,7 +291,6 @@ def new_hook(u, p, sid):
 
 @projects.route('/<u>/<p>/hook/edit/<int:hid>', methods=['GET', 'POST'])
 @user_required
-@project_action
 def edit_hook(u, p, hid):
     if p.owner.id != g.user.id:
         return abort(403)
@@ -382,7 +360,6 @@ def hook_receive(pid, key):
 
 @projects.route('/<u>/<p>/hook/delete/<int:hid>', methods=['GET', 'POST'])
 @user_required
-@project_action
 def delete_hook(u, p, hid):
     """
     Delete an existing service hook.
@@ -411,7 +388,6 @@ def delete_hook(u, p, hid):
 
 @projects.route('/<u>/<p>/channel/new', methods=['GET', 'POST'])
 @user_required
-@project_action
 def new_channel(u, p):
     if p.owner.id != g.user.id:
         # Project isn't public and the viewer isn't the project owner.
@@ -454,7 +430,6 @@ def new_channel(u, p):
 
 @projects.route('/<u>/<p>/channel/delete/<int:cid>', methods=['GET', 'POST'])
 @user_required
-@project_action
 def delete_channel(u, p, cid):
     """
     Delete an existing service hook.
