@@ -37,13 +37,6 @@ class User(db.Model):
     salt = db.Column(db.String(8), nullable=False)
     joined = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
 
-    #: Obsolete field, no longer used in production.
-    company = db.Column(db.String(255))
-    #: Obsolete field, no longer used in production.
-    website = db.Column(db.String(255))
-    #: Obsolete field, no longer used in production.
-    location = db.Column(db.String(255))
-
     @classmethod
     def new(cls, username, email, password):
         u = cls()

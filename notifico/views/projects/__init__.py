@@ -155,7 +155,6 @@ def new():
                 public=form.public.data,
                 website=form.website.data
             )
-            p.full_name = '{0}/{1}'.format(g.user.username, p.name)
             g.user.projects.append(p)
             db.session.add(p)
 
@@ -199,7 +198,6 @@ def edit_project(u, p):
             p.name = form.name.data
             p.website = form.website.data
             p.public = form.public.data
-            p.full_name = '{0}/{1}'.format(g.user.username, p.name)
             db.session.commit()
             return redirect(url_for('.dashboard', u=u.username))
 

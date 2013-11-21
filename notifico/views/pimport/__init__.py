@@ -148,7 +148,6 @@ def github():
                     public=not repo.private,
                     website=repo.homepage
                 )
-                p.full_name = '{0}/{1}'.format(g.user.username, p.name)
                 g.user.projects.append(p)
                 db.session.add(p)
                 # We need to commit to generate the project.id which is
