@@ -48,9 +48,8 @@ class User(db.Model):
     def new(cls, username, email, password):
         u = cls()
         u.email = email.lower().strip()
-        u.salt = cls._create_salt()
-        u.password = cls._hash_password(password, u.salt)
         u.username = username.strip()
+        u.set_password(password)
         return u
 
     ###
