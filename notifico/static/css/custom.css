@@ -11,3 +11,15 @@
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+
+.td-c {
+	text-align: center;
+}
+
+.td-f {
+	width: 100%;
+}
+
+.table-vertical td {
+	vertical-align: middle;
+}
