@@ -15,7 +15,7 @@ from flask import (
     flash
 )
 from notifico import db
-from notifico.models import User, AuthToken
+from notifico.models.user import User, AuthToken
 from notifico.services import reset, background
 from notifico.views import user_required, no_user_required
 from notifico.views.account.forms import (
@@ -28,9 +28,6 @@ from notifico.views.account.forms import (
 )
 
 account = Blueprint('account', __name__, template_folder='templates')
-# Usernames that cannot be registered because they clash with internal
-# routes.
-_reserved = ('new',)
 
 
 @account.before_app_request

@@ -5,7 +5,9 @@ A collection of utility methods for common site statistics.
 from sqlalchemy import func
 
 from notifico import db, cache
-from notifico.models import Project, Channel, User
+from notifico.models.project import Project
+from notifico.models.channel import Channel
+from notifico.models.user import User
 
 
 @cache.memoize(timeout=60 * 5)

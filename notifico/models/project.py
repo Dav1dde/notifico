@@ -1,28 +1,42 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 __all__ = ('Project',)
 import datetime
 
 from sqlalchemy import or_
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from notifico import db
-from notifico.models import CaseInsensitiveComparator
 
 
 class Project(db.Model):
+    #: The unique identifier for this Project.
     id = db.Column(db.Integer, primary_key=True)
+    #: The name for this Project.
     name = db.Column(db.String(50), nullable=False)
+    #: The UTC timestamp for when this Project was created.
     created = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
+    #: ``True`` if this project is visible to the public.
     public = db.Column(db.Boolean, default=True)
+    #: A website for this project.
     website = db.Column(db.String(1024))
 
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    #: The user who created or currently owns this Project.
     owner = db.relationship('User', backref=db.backref(
-        'projects', order_by=id, lazy='dynamic', cascade='all, delete-orphan'
+        'projects',
+        order_by=id,
+        lazy='dynamic',
+        # If a user is deleted, we want all of the associated
+        # projects to go with it.
+        cascade='all, delete-orphan'
     ))
 
+    #: Obsolete field, no longer used in production.
     full_name = db.Column(db.String(101), nullable=False, unique=True)
+
+    #: The total count of all messages from all sources that have
+    #: been recieved for this project.
     message_count = db.Column(db.Integer, default=0)
+
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     @classmethod
     def new(cls, name, public=True, website=None):
@@ -31,24 +45,6 @@ class Project(db.Model):
         c.public = public
         c.website = website.strip() if website else None
         return c
-
-    @hybrid_property
-    def name_i(self):
-        return self.name.lower()
-
-    @name_i.comparator
-    def name_i(cls):
-        return CaseInsensitiveComparator(cls.name)
-
-    @classmethod
-    def by_name(cls, name):
-        return cls.query.filter_by(name_i=name).first()
-
-    @classmethod
-    def by_name_and_owner(cls, name, owner):
-        q = cls.query.filter(cls.owner_id == owner.id)
-        q = q.filter(cls.name_i == name)
-        return q.first()
 
     @classmethod
     def visible(cls, q, user=None):

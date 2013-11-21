@@ -17,7 +17,10 @@ from flask.ext import wtf
 
 from notifico import db
 from notifico.views import user_required
-from notifico.models import User, Project, Hook, Channel
+from notifico.models.user import User
+from notifico.models.project import Project
+from notifico.models.hook import Hook
+from notifico.models.channel import Channel
 from notifico.services.hooks import HookService
 
 projects = Blueprint('projects', __name__, template_folder='templates')
@@ -93,14 +96,14 @@ def _resolve_values(endpoint, values):
 
         values['u'] = u
 
-    # Resolve a Project reference.
-    if 'p' in values:
-        p = Project.by_name_and_owner(values.pop('p'), u)
-        if not p:
-            # That project doesn't exist.
-            return abort(404)
+        # Resolve a Project reference.
+        if 'p' in values:
+            p = u.project_by_name(values.pop('p'))
+            if not p:
+                # That project doesn't exist.
+                return abort(404)
 
-        values['p'] = p
+            values['p'] = p
 
 
 @projects.route('/<u>/')
@@ -231,16 +234,16 @@ def details(u, p):
     """
     Show the details for an existing project.
     """
-    if not p.can_see(g.user):
-        return redirect(url_for('public.landing'))
+    # if not p.can_see(g.user):
+    #     return redirect(url_for('public.landing'))
 
-    can_modify = p.can_modify(g.user)
+    # can_modify = p.can_modify(g.user)
 
     return render_template(
         'project_details.html',
         project=p,
         user=u,
-        can_modify=can_modify,
+        can_modify=True,
         page_title='Notifico! - {u.username}/{p.name}'.format(
             u=u,
             p=p

@@ -17,7 +17,10 @@ from github import Github, GithubException
 
 from notifico import db
 from notifico.views import user_required
-from notifico.models import AuthToken, Project, Hook, Channel
+from notifico.models.user import AuthToken
+from notifico.models.project import Project
+from notifico.models.hook import Hook
+from notifico.models.channel import Channel
 
 pimport = Blueprint('pimport', __name__, template_folder='templates')
 

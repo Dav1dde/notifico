@@ -10,7 +10,9 @@ from sqlalchemy import func
 
 from notifico import db
 from notifico.services import stats
-from notifico.models import User, Channel, Project
+from notifico.models.user import User
+from notifico.models.channel import Channel
+from notifico.models.project import Project
 from notifico.services.hooks import HookService
 
 public = Blueprint('public', __name__, template_folder='templates')

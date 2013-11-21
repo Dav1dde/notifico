@@ -1,33 +1,47 @@
 # -*- coding: utf8 -*-
-__all__ = ('User', 'Group')
+__all__ = ('User', 'Group', 'AuthToken')
 import os
 import base64
 import hashlib
 import datetime
 
+from sqlalchemy import func
+from sqlalchemy.sql import exists
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from notifico import db
-from notifico.models import CaseInsensitiveComparator
+from notifico.models import CaseInsensitiveValue
+from notifico.models.project import Project
+
+
+def _create_salt():
+    """
+    Returns a new base64 salt.
+    """
+    return base64.b64encode(os.urandom(8))[:8]
+
+
+def _hash_password(password, salt):
+    """
+    Returns a hashed password from `password` and `salt`.
+    """
+    return hashlib.sha256(salt + password.strip()).hexdigest()
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    # ---
-    # Required Fields
-    # ---
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     salt = db.Column(db.String(8), nullable=False)
     joined = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
 
-    # ---
-    # Public Profile Fields
-    # ---
+    #: Obsolete field, no longer used in production.
     company = db.Column(db.String(255))
+    #: Obsolete field, no longer used in production.
     website = db.Column(db.String(255))
+    #: Obsolete field, no longer used in production.
     location = db.Column(db.String(255))
 
     @classmethod
@@ -39,39 +53,30 @@ class User(db.Model):
         u.username = username.strip()
         return u
 
-    @staticmethod
-    def _create_salt():
-        """
-        Returns a new base64 salt.
-        """
-        return base64.b64encode(os.urandom(8))[:8]
+    ###
+    # Lookup
+    ###
 
-    @staticmethod
-    def _hash_password(password, salt):
-        """
-        Returns a hashed password from `password` and `salt`.
-        """
-        return hashlib.sha256(salt + password.strip()).hexdigest()
-
-    def set_password(self, new_password):
-        self.salt = self._create_salt()
-        self.password = self._hash_password(new_password, self.salt)
-
-    @classmethod
-    def by_email(cls, email):
-        return cls.query.filter_by(email=email.lower().strip()).first()
+    @hybrid_property
+    def username_i(self):
+        return CaseInsensitiveValue('username', self.username)
 
     @classmethod
     def by_username(cls, username):
         return cls.query.filter_by(username_i=username).first()
 
     @classmethod
-    def email_exists(cls, email):
-        return cls.query.filter_by(email=email.lower().strip()).count() >= 1
+    def username_in_use(cls, username):
+        """
+        Checks to see if a user already exists, or
+        """
+        return db.session.query(exists().where(
+            cls.username_i == username
+        )).scalar()
 
-    @classmethod
-    def username_exists(cls, username):
-        return cls.query.filter_by(username_i=username).count() >= 1
+    ###
+    # Authentication
+    ###
 
     @classmethod
     def login(cls, username, password):
@@ -84,21 +89,13 @@ class User(db.Model):
             return u
         return None
 
-    @hybrid_property
-    def username_i(self):
-        return self.username.lower()
+    def set_password(self, new_password):
+        self.salt = _create_salt()
+        self.password = _hash_password(new_password, self.salt)
 
-    @username_i.comparator
-    def username_i(cls):
-        return CaseInsensitiveComparator(cls.username)
-
-    def active_projects(self, limit=5):
-        """
-        Return this users most active projets (by descending message count).
-        """
-        q = self.projects.order_by(False).order_by('-message_count')
-        q = q.limit(limit)
-        return q
+    ###
+    # Authorization
+    ###
 
     def in_group(self, name):
         """
@@ -118,45 +115,21 @@ class User(db.Model):
 
         self.groups.append(Group.get_or_create(name=name))
 
-    def export(self):
-        """
-        Exports the user, his projects, and his hooks for use in a
-        private-ly hosted Notifico instance.
-        """
-        j = {
-            'user': {
-                'username': self.username,
-                'email': self.email,
-                'joined': self.joined.isoformat(),
-                'company': self.company,
-                'website': self.website,
-                'location': self.location
-            },
-            'projects': [{
-                'name': p.name,
-                'created': p.created.isoformat(),
-                'public': p.public,
-                'website': p.website,
-                'message_count': p.message_count,
-                'channels': [{
-                    'created': c.created.isoformat(),
-                    'channel': c.channel,
-                    'host': c.host,
-                    'port': c.port,
-                    'ssl': c.ssl,
-                    'public': c.public
-                } for c in p.channels],
-                'hooks': [{
-                    'created': h.created.isoformat(),
-                    'key': h.key,
-                    'service_id': h.service_id,
-                    'message_count': h.message_count,
-                    'config': h.config
-                } for h in p.hooks]
-            } for p in self.projects]
-        }
+    ###
+    # Projects
+    ###
 
-        return j
+    def project_by_name(self, project_name):
+        """
+        Returns the `Project` (if any) created by this user with the
+        name `project_name` (case insensitive).
+
+        :param project_name: The name of the project to fetch.
+        :returns: ``None`` or ``Project``
+        """
+        return self.projects.filter(
+            func.lower(Project.name) == project_name.lower()
+        ).first()
 
 
 class Group(db.Model):
@@ -184,3 +157,25 @@ class Group(db.Model):
             g = Group(name=name)
 
         return g
+
+
+class AuthToken(db.Model):
+    """
+    Service authentication tokens, such as those used for Github's OAuth.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    created = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
+    name = db.Column(db.String(50), nullable=False)
+    token = db.Column(db.String(512), nullable=False)
+
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    owner = db.relationship('User', backref=db.backref(
+        'tokens', order_by=id, lazy='dynamic', cascade='all, delete-orphan'
+    ))
+
+    @classmethod
+    def new(cls, token, name):
+        c = cls()
+        c.token = token
+        c.name = name
+        return c

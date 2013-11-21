@@ -12,7 +12,10 @@ from flask.ext import wtf
 
 from notifico import db
 from notifico.views import user_required, group_required
-from notifico.models import Group, Project, Channel, Hook, User
+from notifico.models.user import Group, User
+from notifico.models.project import Project
+from notifico.models.channel import Channel
+from notifico.models.hook import Hook
 
 admin = Blueprint('admin', __name__, template_folder='templates')
 

@@ -2,7 +2,7 @@
 from flask import g
 from flask.ext import wtf
 
-from notifico.models import User
+from notifico.models.user import User
 from notifico.services import reset
 
 
@@ -28,10 +28,7 @@ class UserRegisterForm(wtf.Form):
     confirm = wtf.PasswordField('Confirm Password')
 
     def validate_username(form, field):
-        from notifico.views.account import _reserved
-
-        username = field.data.strip().lower()
-        if username in _reserved or User.username_exists(username):
+        if User.username_in_use(field.data):
             raise wtf.ValidationError(
                 'Sorry, but that username is taken.'
             )
