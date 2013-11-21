@@ -78,15 +78,22 @@ class User(db.Model):
     ###
 
     @classmethod
-    def login(cls, username, password):
+    def is_valid_login(cls, username, password):
         """
         Returns a `User` object for which `username` and `password` are
         correct, otherwise ``None``.
         """
-        u = cls.by_username(username)
-        if u and u.password == cls._hash_password(password, u.salt):
-            return u
-        return None
+        # SQLite support (and it's lack of support for SHA2()) forces
+        # us to pull back the user and then check the password,
+        # instead of doing it as a single scalar query.
+        u = db.session.query(cls.password, cls.salt).filter_by(
+            username_i=username
+        ).first()
+
+        if u and u.password == _hash_password(password, u.salt):
+            return True
+
+        return False
 
     def set_password(self, new_password):
         self.salt = _create_salt()

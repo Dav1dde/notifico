@@ -43,7 +43,7 @@ class UserLoginForm(wtf.Form):
     ])
 
     def validate_password(form, field):
-        if not User.login(form.username.data, field.data):
+        if not User.is_valid_login(form.username.data, field.data):
             raise wtf.ValidationError('Incorrect username and/or password.')
 
 
