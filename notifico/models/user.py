@@ -82,10 +82,13 @@ class User(db.Model):
         """
         Returns a `User` object for which `username` and `password` are
         correct, otherwise ``None``.
+
+        .. note::
+
+            SQLite support (and it's lack of support for SHA2())
+            forces us to pull back the user and then check the
+            password, instead of doing it as a single scalar query.
         """
-        # SQLite support (and it's lack of support for SHA2()) forces
-        # us to pull back the user and then check the password,
-        # instead of doing it as a single scalar query.
         u = db.session.query(cls.password, cls.salt).filter_by(
             username_i=username
         ).first()
@@ -96,6 +99,14 @@ class User(db.Model):
         return False
 
     def set_password(self, new_password):
+        """
+        Changes a users password, calculating a new salt.
+
+        .. note::
+
+            `set_password()` does not commit the changes to the
+            database.
+        """
         self.salt = _create_salt()
         self.password = _hash_password(new_password, self.salt)
 
