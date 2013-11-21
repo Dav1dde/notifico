@@ -4,8 +4,6 @@
 
 Project related views, such as project creation and details.
 """
-from functools import wraps
-
 from flask import (
     Blueprint,
     render_template,
@@ -124,7 +122,8 @@ def dashboard(u):
         # display public projects.
         projects = projects.filter_by(public=True)
 
-    return render_template('dashboard.html',
+    return render_template(
+        'dashboard.html',
         user=u,
         is_owner=is_owner,
         projects=projects,
@@ -201,7 +200,8 @@ def edit_project(u, p):
             db.session.commit()
             return redirect(url_for('.dashboard', u=u.username))
 
-    return render_template('edit_project.html',
+    return render_template(
+        'edit_project.html',
         project=p,
         form=form
     )
@@ -236,15 +236,10 @@ def details(u, p):
 
     can_modify = p.can_modify(g.user)
 
-    visible_channels = p.channels
-    if not can_modify:
-        visible_channels = visible_channels.filter_by(public=True)
-
     return render_template(
         'project_details.html',
         project=p,
         user=u,
-        visible_channels=visible_channels,
         can_modify=can_modify,
         page_title='Notifico! - {u.username}/{p.name}'.format(
             u=u,
@@ -281,7 +276,8 @@ def new_hook(u, p, sid):
         db.session.commit()
         return redirect(url_for('.details', p=p.name, u=u.username))
 
-    return render_template('new_hook.html',
+    return render_template(
+        'new_hook.html',
         project=p,
         services=HookService.services,
         service=hook,
@@ -321,7 +317,8 @@ def edit_hook(u, p, hid):
     elif form:
         hook_service.load_form(form, h.config)
 
-    return render_template('edit_hook.html',
+    return render_template(
+        'edit_hook.html',
         project=p,
         services=HookService.services,
         service=hook_service,
@@ -380,7 +377,8 @@ def delete_hook(u, p, hid):
         db.session.commit()
         return redirect(url_for('.details', p=p.name, u=u.username))
 
-    return render_template('delete_hook.html',
+    return render_template(
+        'delete_hook.html',
         project=p,
         hook=h
     )
@@ -422,7 +420,8 @@ def new_channel(u, p):
                 'You cannot have a project in the same channel twice.'
             )]
 
-    return render_template('new_channel.html',
+    return render_template(
+        'new_channel.html',
         project=p,
         form=form
     )
@@ -454,7 +453,8 @@ def delete_channel(u, p, cid):
         db.session.commit()
         return redirect(url_for('.details', p=p.name, u=u.username))
 
-    return render_template('delete_channel.html',
+    return render_template(
+        'delete_channel.html',
         project=c.project,
         channel=c
     )
