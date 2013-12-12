@@ -5,7 +5,7 @@
 	{% set active = active or endpoint %}
 	{% set title = title or text %}
 
-	{% if request.endpoint.startswith(active) %}
+	{% if request.endpoint and request.endpoint.startswith(active) %}
 	<li class="active">
 		<a href="#" title="{{ title }}">
 			{{ text }}
