@@ -29,7 +29,7 @@ def _hash_password(password, salt):
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(255), nullable=False)
@@ -143,13 +143,20 @@ class User(db.Model):
 
 
 class Group(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    """
+    A group is a select list of permissions applied to all members
+    of that group. For example, you could have an "admin" group
+    and a "moderator" group.
+    """
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     name = db.Column(db.String(255), unique=True, nullable=False)
 
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     owner = db.relationship('User', backref=db.backref(
-        'groups', order_by=id, lazy='joined'
+        'groups',
+        order_by=id,
+        lazy='joined'
     ))
 
     def __init__(self, name):
@@ -167,6 +174,35 @@ class Group(db.Model):
             g = Group(name=name)
 
         return g
+
+
+class Permission(db.Model):
+    """
+    A permission is an authorization check against a specific label.
+    For example, you might have a `Permission('see_private_projects')`
+    for users/groups allowed to see private projects.
+    """
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    #: The UTC timestamp of when this Permission was created.
+    created = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
+
+    #: A descriptive slug naming this permission. For example,
+    #: "can_view_private_channels" and "can_view_private_hooks"
+    #: would be acceptable.
+    label = db.Column(db.String(64), nullable=False)
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    group = db.relationship('Group', backref=db.backref(
+        'permissions',
+        order_by=id,
+        lazy='dynamic',
+        cascade='all, delete, delete-orphan'
+    ))
 
 
 class AuthToken(db.Model):
