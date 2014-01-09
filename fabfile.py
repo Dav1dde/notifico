@@ -23,9 +23,6 @@ def deploy():
     # Since we use the deploying users home folder as the base,
     # we must have it at a minimum.
     require('user', provided_by=['live'])
-    # Make sure our CSS is up to date.
-    with lcd('notifico/static'):
-        local('lessc less/bootstrap.less css/bootstrap.css')
 
     # Copy any changes (and only changes) to the server.
     rsync_project(
