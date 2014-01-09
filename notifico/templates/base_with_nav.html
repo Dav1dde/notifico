@@ -57,7 +57,7 @@
 					<ul class="nav navbar-nav pull-right">
 						{% if g.user %}
 						<!-- START Logged-in user right nav -->
-						
+						{{ _nav('account.logout', 'Logout') }}
 						<!-- ENDOF Logged-in user right nav -->
 						{% else %}
 						<!-- START Logged-out user right nav -->
