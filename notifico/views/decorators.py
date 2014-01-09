@@ -27,6 +27,10 @@ def user_required(f):
 
 
 def no_user_required(f):
+    """
+    A decorator for views which require no user to be logged in,
+    such as login and signup pages.
+    """
     @wraps(f)
     def _wrapped(*args, **kwargs):
         if g.user:
@@ -38,7 +42,7 @@ def no_user_required(f):
 
 def group_required(name):
     """
-    A decorator for views which required a user to be member
+    A decorator for views which require a user to be member
     to a particular group.
     """
     def _wrap(f):
