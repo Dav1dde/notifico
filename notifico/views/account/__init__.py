@@ -198,6 +198,10 @@ def register():
     """
     # Make sure this instance is allowing new users.
     if not current_app.config.get('NOTIFICO_NEW_USERS', True):
+        flash(
+            'New account registration is currently disabled.',
+            category='danger'
+        )
         return redirect(url_for('public.landing'))
 
     form = UserRegisterForm()
