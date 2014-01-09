@@ -176,35 +176,6 @@ class Group(db.Model):
         return g
 
 
-class Permission(db.Model):
-    """
-    A permission is an authorization check against a specific label.
-    For example, you might have a `Permission('see_private_projects')`
-    for users/groups allowed to see private projects.
-    """
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        autoincrement=True
-    )
-
-    #: The UTC timestamp of when this Permission was created.
-    created = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
-
-    #: A descriptive slug naming this permission. For example,
-    #: "can_view_private_channels" and "can_view_private_hooks"
-    #: would be acceptable.
-    label = db.Column(db.String(64), nullable=False)
-
-    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
-    group = db.relationship('Group', backref=db.backref(
-        'permissions',
-        order_by=id,
-        lazy='dynamic',
-        cascade='all, delete, delete-orphan'
-    ))
-
-
 class AuthToken(db.Model):
     """
     Service authentication tokens, such as those used for Github's OAuth.
