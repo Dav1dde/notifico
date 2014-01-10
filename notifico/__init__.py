@@ -75,13 +75,11 @@ def create_instance():
     from notifico.views.account import account
     from notifico.views.public import public
     from notifico.views.projects import projects
-    from notifico.views.pimport import pimport
     from notifico.views.admin import admin
 
     app.register_blueprint(account, url_prefix='/account')
     app.register_blueprint(projects, url_prefix='/projects')
     app.register_blueprint(public)
-    app.register_blueprint(pimport, url_prefix='/import')
     app.register_blueprint(admin, url_prefix='/admin')
 
     # Register our custom error handlers.

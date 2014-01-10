@@ -1,28 +1,45 @@
 {% extends "base_with_nav.html" %}
 
 {% block page_content %}
-    <div class="container">
-        <div class="page-header">
-            <h1>Projects</h1>
-        </div>
-        <div class="list-group">
-        {% for project in projects %}
-          <a href="#" class="list-group-item">
-            <h4 class="list-group-item-heading">
-                {% if not project.public %}
-                <i class="fa fa-lock"></i>&nbsp;
-                {% endif %}
-                {{ project.name }}
-            </h4>
-            <p class="list-group-item-text">
-                <span class="text-muted">created {{ project.created|pretty_date }}</span>
-                <span class="pull-right">
-                    <i class="fa fa-inbox"></i>&nbsp;
-                    {{ project.message_count }}
-                </span>
-            </p>
+<div class="container">
+  <div class="page-header">
+    <h1>{{ user.username }} - All Projects</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <ul class="list-inline">
+        <li>
+          <a href="#" class="btn btn-success">
+            <i class="fa fa-plus"></i> New Project
           </a>
+        </li>
+      </ul>
+      {% if not projects.count() %}
+      <div class="alert alert-info">
+        Hmm, there aren't any projects here yet.
+      </div>
+      {% endif %}
+      <div class="list-group">
+        {% for project in projects %}
+        <a href="#" class="list-group-item">
+          <h4 class="list-group-item-heading">
+            {% if not project.public %}
+            <i class="fa fa-lock"></i>&nbsp;
+            {% endif %}
+            {{ project.name }}
+          </h4>
+          <p class="list-group-item-text">
+            <span class="text-muted">created {{ project.created|pretty_date }}</span>
+            <span class="pull-right">
+              <i class="fa fa-inbox"></i>&nbsp;
+              {{ project.message_count }}
+            </span>
+          </p>
+        </a>
         {% endfor %}
-        </div>
+      </div>
     </div>
+  </div>
+</div>
 {% endblock %}

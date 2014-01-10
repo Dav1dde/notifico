@@ -1,17 +1,15 @@
 # -*- coding: utf8 -*-
-__all__ = ('User', 'Group', 'AuthToken')
+__all__ = ('User', 'Group')
 import os
 import base64
 import hashlib
 import datetime
 
-from sqlalchemy import func
 from sqlalchemy.sql import exists
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from notifico import db
 from notifico.models import CaseInsensitiveValue
-from notifico.models.project import Project
 
 
 def _create_salt():
@@ -125,22 +123,6 @@ class User(db.Model):
 
         self.groups.append(Group.get_or_create(name=name))
 
-    ###
-    # Projects
-    ###
-
-    def project_by_name(self, project_name):
-        """
-        Returns the `Project` (if any) created by this user with the
-        name `project_name` (case insensitive).
-
-        :param project_name: The name of the project to fetch.
-        :returns: ``None`` or ``Project``
-        """
-        return self.projects.filter(
-            func.lower(Project.name) == project_name.lower()
-        ).first()
-
 
 class Group(db.Model):
     """
@@ -174,25 +156,3 @@ class Group(db.Model):
             g = Group(name=name)
 
         return g
-
-
-class AuthToken(db.Model):
-    """
-    Service authentication tokens, such as those used for Github's OAuth.
-    """
-    id = db.Column(db.Integer, primary_key=True)
-    created = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
-    name = db.Column(db.String(50), nullable=False)
-    token = db.Column(db.String(512), nullable=False)
-
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    owner = db.relationship('User', backref=db.backref(
-        'tokens', order_by=id, lazy='dynamic', cascade='all, delete-orphan'
-    ))
-
-    @classmethod
-    def new(cls, token, name):
-        c = cls()
-        c.token = token
-        c.name = name
-        return c
