@@ -10,7 +10,6 @@ from sqlalchemy import func
 
 from notifico import db
 from notifico.services import stats
-from notifico.models.user import User
 from notifico.models.channel import Channel
 from notifico.models.project import Project
 
@@ -102,24 +101,4 @@ def projects(page=1):
         pagination=pagination,
         per_page=per_page,
         count=q.count()
-    )
-
-
-@public.route('/s/users', defaults={'page': 1})
-@public.route('/s/users/<int:page>')
-def users(page=1):
-    per_page = min(int(request.args.get('l', 25)), 100)
-    sort_by = request.args.get('s', 'created')
-
-    q = User.query.order_by(False)
-    q = q.order_by({
-        'created': User.joined.desc()
-    }.get(sort_by, User.joined.desc()))
-
-    pagination = q.paginate(page, per_page, False)
-
-    return render_template(
-        'users.html',
-        pagination=pagination,
-        per_page=per_page
     )
