@@ -24,10 +24,8 @@ def landing():
     and very basic metrics such as total users.
     """
     # Find the 10 latest public projects.
-    new_projects = (
-        Project.visible(Project.query, user=g.user)
-        .order_by(False)
-        .order_by(Project.created.desc())
+    new_projects = Project.filter_visible(
+        user=g.user
     ).paginate(1, 10, False)
 
     return render_template(
@@ -90,8 +88,9 @@ def projects(page=1):
     per_page = min(int(request.args.get('l', 25)), 100)
     sort_by = request.args.get('s', 'created')
 
-    q = Project.visible(Project.query, user=g.user).order_by(False)
-    q = q.order_by({
+    q = Project.filter_visible(
+        user=g.user
+    ).order_by({
         'created': Project.created.desc(),
         'messages': Project.message_count.desc()
     }.get(sort_by, Project.created.desc()))

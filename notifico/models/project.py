@@ -34,27 +34,23 @@ class Project(db.Model):
     #: been recieved for this project.
     message_count = db.Column(db.Integer, default=0)
 
-    # @classmethod
-    # def visible(cls, q=None, user=None):
-    #     """
-    #     Modifies the sqlalchemy query `q` to only show projects accessible
-    #     to `user`. If `user` is ``None``, only shows public projects.
-    #     """
-    #     if user and user.in_group('admin'):
-    #         # We don't do any filtering for admins,
-    #         # who should have full visibility.
-    #         pass
-    #     elif user:
-    #         # We only show the projects that are either public,
-    #         # or are owned by `user`.
-    #         q = q.filter(or_(
-    #             Project.owner_id == user.id,
-    #             Project.public == True
-    #         ))
-    #     else:
-    #         q = q.filter(Project.public == True)
+    @staticmethod
+    def filter_visible(q=None, user=None):
+        q = q if q is not None else Project.query
 
-    #     return q
+        if user and user.in_group('admin'):
+            # Admins can see everything, there's no reason
+            # to filter anything out.
+            pass
+        elif user:
+            q = q.filter(or_(
+                Project.owner_id == user.id,
+                Project.public == True
+            ))
+        else:
+            q = q.filter(Project.public == True)
+
+        return q
 
     def can_see(self, user):
         if self.public:
