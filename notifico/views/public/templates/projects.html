@@ -6,7 +6,12 @@
   <div class="page-header">
     <h1>All Projects</h1>
   </div>
-  
+
+  {% if not count %}
+  <div class="alert alert-info">
+    Hmm, there aren't any projects here yet.
+  </div>
+  {% else %}
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
@@ -28,5 +33,6 @@
     </tbody>
   </table>
   {{ render_pagination(pagination, '.projects', **request.args) }}
+  {% endif %}
 </div>
 {% endblock %}

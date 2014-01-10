@@ -100,7 +100,8 @@ def projects(page=1):
     return render_template(
         'projects.html',
         pagination=pagination,
-        per_page=per_page
+        per_page=per_page,
+        count=q.count()
     )
 
 
