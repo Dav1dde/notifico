@@ -85,10 +85,6 @@ def create_instance():
     app.error_handler_spec[None][500] = errors.error_generic
     app.error_handler_spec[None][404] = errors.error_generic
 
-    # cia.vc XML-RPC kludge.
-    from notifico.services.hooks.cia import handler
-    handler.connect(app, '/RPC2')
-
     # Setup some custom Jinja2 filters.
     app.jinja_env.filters['pretty_date'] = pretty.pretty_date
     app.jinja_env.filters['plural'] = pretty.plural

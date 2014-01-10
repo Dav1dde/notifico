@@ -11,8 +11,6 @@ from flask.ext import wtf
 from notifico import db
 from notifico.views import user_required, group_required
 from notifico.models.user import Group
-from notifico.models.channel import Channel
-from notifico.models.hook import Hook
 
 admin = Blueprint('admin', __name__, template_folder='templates')
 
@@ -40,27 +38,6 @@ def admin_make():
     g.user.add_group('admin')
     db.session.commit()
     return redirect(url_for('public.landing'))
-
-
-@admin.route('/orphan')
-@group_required('admin')
-def admin_orphans():
-    """
-    Murders all orphans.
-    """
-    # Clean up orphaned channels.
-    db.session.query(Channel).\
-        filter(~Channel.project.has()).\
-        delete(synchronize_session=False)
-
-    # Clean up orphaned hooks.
-    db.session.query(Hook).\
-        filter(~Hook.project.has()).\
-        delete(synchronize_session=False)
-
-    db.session.commit()
-
-    return 'Orphans cleaned.'
 
 
 @admin.route('/error/<int:code>')

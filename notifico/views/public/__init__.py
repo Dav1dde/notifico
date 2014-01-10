@@ -13,7 +13,6 @@ from notifico.services import stats
 from notifico.models.user import User
 from notifico.models.channel import Channel
 from notifico.models.project import Project
-from notifico.services.hooks import HookService
 
 public = Blueprint('public', __name__, template_folder='templates')
 
@@ -123,13 +122,4 @@ def users(page=1):
         'users.html',
         pagination=pagination,
         per_page=per_page
-    )
-
-
-@public.route('/s/services')
-def services():
-    services = HookService.services
-    return render_template(
-        'services.html',
-        services=services
     )
