@@ -27,9 +27,6 @@ def create_instance():
     app = Flask(__name__)
     app.config.from_object('notifico.config')
 
-    if app.config.get('NOTIFICO_ENABLE_COMPRESS'):
-        app.jinja_env.add_extension('notifico.util.compress.HTMLCompress')
-
     if app.config.get('NOTIFICO_ROUTE_STATIC'):
         # We should handle routing for static assets ourself (handy for
         # small and quick deployments).
